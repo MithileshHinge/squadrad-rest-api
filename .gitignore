@@ -65,3 +65,9 @@ typings/
 
 # sqlite database
 db/database.sqlite
+
+# private auth keys
+config/mykeys.js
+
+# Docker container npm command logging
+log.txt

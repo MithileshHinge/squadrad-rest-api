@@ -5,6 +5,7 @@ const bcryptService = require('../services/bcrypt.service');
 const UserController = () => {
   const register = async (req, res) => {
     const { body } = req;
+    //console.log(body);
 
     if (body.password === body.password2) {
       try {
@@ -26,6 +27,7 @@ const UserController = () => {
 
   const login = async (req, res) => {
     const { email, password } = req.body;
+    //console.log(req.body);
 
     if (email && password) {
       try {
@@ -56,6 +58,37 @@ const UserController = () => {
     return res.status(400).json({ msg: 'Bad Request: Email or password is wrong' });
   };
 
+  // Google auth - see api.js
+  // Auto sign up if user doesn't exist
+  const loginGoogle = async (accessToken, refreshToken, profile, done) => {
+    //console.log("GOOGLE_LOGIN : " + JSON.stringify(profile));
+    try{
+      const [user, created] = await User.findOrCreate({
+        where: {email : profile.emails[0].value},
+        defaults: {password : accessToken}
+      });
+      return done(null, user);
+    } catch(err){
+      return done(err, false);
+    }
+    
+  };
+
+  const loginGoogleCallback = (req, res) => {
+    const user = req.user;
+    if (!user){
+      return res.status(500).json({ msg: 'Internal server error'});
+    }
+    //console.log("GOOGLE_CALLBACK : ");
+    //console.log(user);
+    if (req.isAuthenticated()){
+      const token = authService().issue({ id: user.id });
+      return res.status(200).json({token, user});
+    }else {
+      return res.status(401).json({ msg: 'Unauthorized' });
+    }
+  }
+
   const validate = (req, res) => {
     const { token } = req.body;
 
@@ -83,6 +116,8 @@ const UserController = () => {
   return {
     register,
     login,
+    loginGoogle,
+    loginGoogleCallback,
     validate,
     getAll,
   };

@@ -44,6 +44,11 @@
     "express-routes-mapper": "^1.0.2",
     "helmet": "^3.12.0",
     "jsonwebtoken": "^8.2.1",
+    "mysql2": "^2.2.5",
+    "passport": "^0.4.1",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-local": "^1.0.0",
+    "passport-youtube-v3": "^2.1.0",
     "sequelize": "^6.0.0",
     "sqlite3": "^4.0.0"
   },

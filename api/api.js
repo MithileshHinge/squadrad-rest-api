@@ -7,13 +7,20 @@ const helmet = require('helmet');
 const http = require('http');
 const mapRoutes = require('express-routes-mapper');
 const cors = require('cors');
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 /**
  * server configuration
  */
 const config = require('../config/');
+const mykeys = require('../config/mykeys');
 const dbService = require('./services/db.service');
 const auth = require('./policies/auth.policy');
+
+// Import UserController for Passport
+const UserController = require('./controllers/UserController');
+
 
 // environment: development, staging, testing, production
 const environment = process.env.NODE_ENV;
@@ -41,6 +48,21 @@ app.use(helmet({
 // parsing the request bodys
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+
+// passport-google-oauth20 strategy -- http://www.passportjs.org/docs/google/ (See OAuth 2.0)
+passport.use(new GoogleStrategy({
+  clientID: mykeys.GOOGLE_CLIENT_ID,
+  clientSecret: mykeys.GOOGLE_CLIENT_SECRET,
+  callbackURL: "/auth/google/redirect"
+}, (accessToken, refreshToken, profile, done) => UserController().loginGoogle(accessToken, refreshToken, profile, done)));
+
+app.get('/auth/google', passport.authenticate('google', {session: false, scope: 'openid profile email'}));
+app.get('/auth/google/redirect',
+  passport.authenticate('google', {session: false, failureRedirect: '/login'}), 
+  (req, res) => UserController().loginGoogleCallback(req, res)
+);
+
 
 // secure your private routes with jwt authentication middleware
 app.all('/private/*', (req, res, next) => auth(req, res, next));
