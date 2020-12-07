@@ -89,6 +89,39 @@ const UserController = () => {
     }
   }
 
+  // Youtube auth
+  // Auto sign up if user doesn't exist
+  const loginYoutube = async (accessToken, refreshToken, profile, done) => {
+    console.log(profile);
+    console.log(accessToken);
+    try {
+      const email = await getGoogleProfile(accessToken);
+
+
+      const [user, created] = await User.findOrCreate({
+        where: {email: email},
+        defaults: {password: accessToken}
+      });
+      return done(null, user);
+    } catch(err) {
+      return done(err, false);
+    }
+  }
+
+  const loginYoutubeCallback = (req, res) => {
+    const user = req.user;
+    if (!user){
+      return res.status(500).json({ msg: 'Internal server error'});
+    }
+
+    if (req.isAuthenticated()){
+      const token = authService().issue({ id: user.id });
+      return res.status(200).json({token, user});
+    }else {
+      return res.status(401).json({ msg: 'Unauthorized' });
+    }
+  }
+
   const validate = (req, res) => {
     const { token } = req.body;
 
@@ -112,12 +145,27 @@ const UserController = () => {
     }
   };
 
+  async function getGoogleProfile(accessToken){
+    const axios = require('axios');
+    
+    try{
+      const res = await axios.get("https://www.googleapis.com/oauth2/v1/userinfo?access_token="+accessToken);
+      console.log(res.data.email);
+      //return {email: res.data.email, picture: res.data.picture};
+      return res.data.email;
+    } catch (err) {
+      throw err;
+    }
+  }
+
 
   return {
     register,
     login,
     loginGoogle,
     loginGoogleCallback,
+    loginYoutube,
+    loginYoutubeCallback,
     validate,
     getAll,
   };

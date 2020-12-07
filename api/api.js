@@ -9,12 +9,13 @@ const mapRoutes = require('express-routes-mapper');
 const cors = require('cors');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const YoutubeStrategy = require('passport-youtube-v3').Strategy;
 
 /**
  * server configuration
  */
 const config = require('../config/');
-const mykeys = require('../config/mykeys');
+const myKeys = require('../config/mykeys');
 const dbService = require('./services/db.service');
 const auth = require('./policies/auth.policy');
 
@@ -52,8 +53,8 @@ app.use(bodyParser.json());
 
 // passport-google-oauth20 strategy -- http://www.passportjs.org/docs/google/ (See OAuth 2.0)
 passport.use(new GoogleStrategy({
-  clientID: mykeys.GOOGLE_CLIENT_ID,
-  clientSecret: mykeys.GOOGLE_CLIENT_SECRET,
+  clientID: myKeys.GOOGLE_CLIENT_ID,
+  clientSecret: myKeys.GOOGLE_CLIENT_SECRET,
   callbackURL: "/auth/google/redirect"
 }, (accessToken, refreshToken, profile, done) => UserController().loginGoogle(accessToken, refreshToken, profile, done)));
 
@@ -63,6 +64,21 @@ app.get('/auth/google/redirect',
   (req, res) => UserController().loginGoogleCallback(req, res)
 );
 
+// passport-youtube-v3 strategy -- https://github.com/yanatan16/passport-youtube-v3#readme
+passport.use(new YoutubeStrategy({
+  clientID: myKeys.GOOGLE_CLIENT_ID,
+  clientSecret: myKeys.GOOGLE_CLIENT_SECRET,
+  callbackURL: "/auth/youtube/redirect",
+  scope: ['https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/youtube.readonly'],
+  authorizationParams: {
+    accessType: 'offline'
+  }
+}, (accessToken, refreshToken, profile, done) => UserController().loginYoutube(accessToken, refreshToken, profile, done)));
+
+app.get('/auth/youtube', passport.authenticate('youtube', {session: false}));
+app.get('/auth/youtube/redirect', passport.authenticate('youtube', {session: false, failureRedirect: '/login'}),
+  (req, res) => UserController().loginYoutubeCallback(req, res)
+);
 
 // secure your private routes with jwt authentication middleware
 app.all('/private/*', (req, res, next) => auth(req, res, next));
