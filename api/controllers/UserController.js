@@ -13,7 +13,7 @@ const UserController = () => {
           email: body.email,
           password: body.password,
         });
-        const token = authService().issue({ id: user.id });
+        const token = authService().issue({ id: user.user_id });
 
         return res.status(200).json({ token, user });
       } catch (err) {
@@ -43,7 +43,7 @@ const UserController = () => {
         }
 
         if (bcryptService().comparePassword(password, user.password)) {
-          const token = authService().issue({ id: user.id });
+          const token = authService().issue({ id: user.user_id });
 
           return res.status(200).json({ token, user });
         }
@@ -82,7 +82,7 @@ const UserController = () => {
     //console.log("GOOGLE_CALLBACK : ");
     //console.log(user);
     if (req.isAuthenticated()){
-      const token = authService().issue({ id: user.id });
+      const token = authService().issue({ id: user.user_id });
       return res.status(200).json({token, user});
     }else {
       return res.status(401).json({ msg: 'Unauthorized' });
@@ -115,7 +115,7 @@ const UserController = () => {
     }
 
     if (req.isAuthenticated()){
-      const token = authService().issue({ id: user.id });
+      const token = authService().issue({ id: user.user_id });
       return res.status(200).json({token, user});
     }else {
       return res.status(401).json({ msg: 'Unauthorized' });
