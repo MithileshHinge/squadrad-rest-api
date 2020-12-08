@@ -1,3 +1,4 @@
+const moment = require('moment');
 const User = require('../models/User');
 const authService = require('../services/auth.service');
 const bcryptService = require('../services/bcrypt.service');
@@ -12,6 +13,9 @@ const UserController = () => {
         const user = await User.create({
           email: body.email,
           password: body.password,
+          name: body.name,
+          registered_ip: req.ip,
+          last_login_timestamp: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
         });
         const token = authService().issue({ id: user.user_id });
 
@@ -44,7 +48,8 @@ const UserController = () => {
 
         if (bcryptService().comparePassword(password, user.password)) {
           const token = authService().issue({ id: user.user_id });
-
+          user.last_login_timestamp = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+          user.save();
           return res.status(200).json({ token, user });
         }
 
@@ -121,6 +126,8 @@ const UserController = () => {
       return res.status(401).json({ msg: 'Unauthorized' });
     }
   }
+
+
 
   const validate = (req, res) => {
     const { token } = req.body;
