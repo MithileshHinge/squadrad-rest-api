@@ -17,9 +17,10 @@ const YoutubeStrategy = require('passport-youtube-v3').Strategy;
 const config = require('../config/');
 const myKeys = require('../config/mykeys');
 const dbService = require('./services/db.service');
+const fupService = require('./services/fileupload.service');
 const auth = require('./policies/auth.policy');
 
-// Import UserController for Passport
+// Import UserController for Passport and Multer (fupServive)
 const UserController = require('./controllers/UserController');
 
 
@@ -34,6 +35,7 @@ const server = http.Server(app);
 const mappedOpenRoutes = mapRoutes(config.publicRoutes, 'api/controllers/');
 const mappedAuthRoutes = mapRoutes(config.privateRoutes, 'api/controllers/');
 const DB = dbService(environment, config.migrate).start();
+const privateRoutePrefix = '/private';
 
 // allow cross origin requests
 // configure to only allow requests from certain origins
@@ -81,11 +83,15 @@ app.get('/auth/youtube/redirect', passport.authenticate('youtube', {session: fal
 );
 
 // secure your private routes with jwt authentication middleware
-app.all('/private/*', (req, res, next) => auth(req, res, next));
+app.all(privateRoutePrefix+'/*', (req, res, next) => auth(req, res, next));
 
 // fill routes for express application
 app.use('/public', mappedOpenRoutes);
-app.use('/private', mappedAuthRoutes);
+app.use(privateRoutePrefix, mappedAuthRoutes);
+
+// Upload profile picture route
+app.post(privateRoutePrefix + '/user/profile-pic', fupService.uploadProfilePic.single('input-profile-pic'), UserController().updateProfilePic);
+
 
 server.listen(config.port, () => {
   if (environment !== 'production' &&
