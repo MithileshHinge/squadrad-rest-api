@@ -1,4 +1,5 @@
 const Sequelize = require('sequelize');
+const Validator = require('validator');
 const bcryptService = require('../services/bcrypt.service');
 
 const sequelize = require('../../config/database');
@@ -22,6 +23,11 @@ const User = sequelize.define('User', {
     type: Sequelize.STRING(320),
     unique: true,
     allowNull: false,
+    validate: {
+      isEmail: {
+        domain_specific_validation: true,
+      },
+    },
   },
   password: {
     type: Sequelize.STRING,
@@ -30,8 +36,27 @@ const User = sequelize.define('User', {
   name: {
     type: Sequelize.STRING(50),
     allowNull: false,
+    validate: {
+      isAlphaSplit(value) {
+        if(!value.split(' ').every(function (word) {return Validator.isAlpha(word); } )){
+          throw new Error('Only alphabets are allowed in a name');
+        }
+      },
+    },
   },
   profile_pic: {
+    type: Sequelize.STRING,
+  },
+  google_token: {
+    type: Sequelize.STRING,
+  },
+  google_refresh_token: {
+    type: Sequelize.STRING,
+  },
+  youtube_token: {
+    type: Sequelize.STRING,
+  },
+  youtube_refresh_token: {
     type: Sequelize.STRING,
   },
   last_login_timestamp: {
@@ -57,6 +82,13 @@ User.prototype.toJSON = function () {
   const values = Object.assign({}, this.get());
 
   delete values.password;
+  delete values.google_token;
+  delete values.google_refresh_token;
+  delete values.youtube_token;
+  delete values.youtube_refresh_token;
+  delete values.last_login_timestamp;
+  delete values.registered_ip;
+
 
   return values;
 };
