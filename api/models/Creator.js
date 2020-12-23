@@ -2,9 +2,10 @@ const Sequelize = require('sequelize');
 const sequelize = require('../../config/database');
 
 const Creator = sequelize.define('Creator', {
-    creator_id: {
+    creator_id: { // DO NOT USE for anything
         type: Sequelize.INTEGER,
         primaryKey: true,
+        autoIncrement: true,
         allowNull: false,
     },
     user_id: {
@@ -39,6 +40,7 @@ const Creator = sequelize.define('Creator', {
     },
     slug: {
         type: Sequelize.STRING(50),
+        unique: true,
     },
     supporters_visibility: {
         type: Sequelize.BOOLEAN,
@@ -70,25 +72,13 @@ const Creator = sequelize.define('Creator', {
     upi_id: {
         type: Sequelize.STRING(50),
     },
-    youtube_token: {
-        type: Sequelize.STRING,
-    },
     youtube_link: {
-        type: Sequelize.STRING,
-    },
-    instagram_token: {
         type: Sequelize.STRING,
     },
     instagram_link: {
         type: Sequelize.STRING,
     },
-    facebook_token: {
-        type: Sequelize.STRING,
-    },
     facebook_link: {
-        type: Sequelize.STRING,
-    },
-    google_token: {
         type: Sequelize.STRING,
     },
     review_submitted: {
