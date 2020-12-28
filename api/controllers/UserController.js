@@ -4,6 +4,8 @@ const authService = require('../services/auth.service');
 const bcryptService = require('../services/bcrypt.service');
 const defaultProfilePolicy = require('../policies/defaultProfile.policy');
 
+const allowedFields = ['name', 'deactivated'];
+
 const UserController = () => {
   const register = async (req, res) => {
     const { body } = req;
@@ -285,19 +287,6 @@ const UserController = () => {
     }
   };
 
-  const updateName = async (req, res) => {
-    try{
-      User.update(
-        { name: req.body.name },
-        { where: {user_id: req.token.id} }
-      );
-    } catch (err) {
-      return res.status(500).json({ msg: 'Internal server error'});
-    }
-
-    return res.status(200).json({});
-  };
-
   const updateProfilePic = async (req, res) => {
     const user_id = req.token.id;
     try{
@@ -312,22 +301,29 @@ const UserController = () => {
     return res.status(200).json({});
   };
 
-  const toggleDeactivate = async (req, res) => {
-    const user_id = req.token.id;
-    try{
-      const user = await User.findByPk(user_id);
-      if (!user) {
-        return res.status(500).json({ msg: 'Internal server error'});
-      }
+  const updateFields = async (req, res) => {
+    const fields = Object.keys(req.body);
+    console.log(fields);
+    let updateData = {};
 
-      user.deactivated = !user.deactivated;
-      user.save();
+    for (let field of fields){
+      if (allowedFields.includes(field)){
+        updateData[field] = req.body[field];
+      }
+    }
+
+    console.log(updateData);
+
+    try{
+      const nrows = await User.update(updateData, { where: {user_id: req.token.id}} );
+      if (nrows[0] > 0)
+          return res.status(200).json({});
+      else
+          return res.status(500).json({ msg: 'Internal server error'});
     } catch (err) {
       return res.status(500).json({ msg: 'Internal server error'});
     }
-
-    return res.status(200).json({});
-  }
+  };
 
   const deleteUser = async (req, res) => {
     if (req.body.password) {
@@ -350,7 +346,7 @@ const UserController = () => {
       }
     }
     return res.status(400).json({ msg: 'Bad Request' });
-  }
+  };
 
   const validate = (req, res) => {
     const { token } = req.body;
@@ -395,9 +391,8 @@ const UserController = () => {
     loginGoogleCallback,
     loginYoutube,
     loginYoutubeCallback,
-    updateName,
     updateProfilePic,
-    toggleDeactivate,
+    updateFields,
     deleteUser,
     validate,
     getAll,

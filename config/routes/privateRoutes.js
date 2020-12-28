@@ -1,7 +1,7 @@
 const privateRoutes = {
+  //User API
   'GET /users': 'UserController.getAll', //DELETE this later, only for testing
-  'POST /user/name': 'UserController.updateName',
-  'POST /user/deactivate': 'UserController.toggleDeactivate',
+  'PUT /user': 'UserController.updateFields',
   'DELETE /user': 'UserController.deleteUser',
 };
 
