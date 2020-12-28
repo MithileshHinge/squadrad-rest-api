@@ -44,9 +44,9 @@ app.use(cors());
 
 // secure express app
 app.use(helmet({
-  dnsPrefetchControl: false,
-  frameguard: false,
-  ieNoOpen: false,
+	dnsPrefetchControl: false,
+	frameguard: false,
+	ieNoOpen: false,
 }));
 
 // parsing the request bodys
@@ -56,31 +56,31 @@ app.use(bodyParser.json());
 
 // passport-google-oauth20 strategy -- http://www.passportjs.org/docs/google/ (See OAuth 2.0)
 passport.use(new GoogleStrategy({
-  clientID: myKeys.GOOGLE_CLIENT_ID,
-  clientSecret: myKeys.GOOGLE_CLIENT_SECRET,
-  callbackURL: "/auth/google/redirect"
+	clientID: myKeys.GOOGLE_CLIENT_ID,
+	clientSecret: myKeys.GOOGLE_CLIENT_SECRET,
+	callbackURL: "/auth/google/redirect"
 }, (accessToken, refreshToken, profile, done) => UserController().loginGoogle(accessToken, refreshToken, profile, done)));
 
 app.get('/auth/google', passport.authenticate('google', {session: false, scope: 'openid profile email'}));
 app.get('/auth/google/redirect',
-  passport.authenticate('google', {session: false, failureRedirect: '/login'}), 
-  (req, res) => UserController().loginGoogleCallback(req, res)
+	passport.authenticate('google', {session: false, failureRedirect: '/login'}), 
+	(req, res) => UserController().loginGoogleCallback(req, res)
 );
 
 // passport-youtube-v3 strategy -- https://github.com/yanatan16/passport-youtube-v3#readme
 passport.use(new YoutubeStrategy({
-  clientID: myKeys.GOOGLE_CLIENT_ID,
-  clientSecret: myKeys.GOOGLE_CLIENT_SECRET,
-  callbackURL: "/auth/youtube/redirect",
-  scope: ['https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/youtube.readonly'],
-  authorizationParams: {
-    accessType: 'offline'
-  }
+	clientID: myKeys.GOOGLE_CLIENT_ID,
+	clientSecret: myKeys.GOOGLE_CLIENT_SECRET,
+	callbackURL: "/auth/youtube/redirect",
+	scope: ['https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/youtube.readonly'],
+	authorizationParams: {
+		accessType: 'offline'
+	}
 }, (accessToken, refreshToken, profile, done) => UserController().loginYoutube(accessToken, refreshToken, profile, done)));
 
 app.get('/auth/youtube', passport.authenticate('youtube', {session: false}));
 app.get('/auth/youtube/redirect', passport.authenticate('youtube', {session: false, failureRedirect: '/login'}),
-  (req, res) => UserController().loginYoutubeCallback(req, res)
+	(req, res) => UserController().loginYoutubeCallback(req, res)
 );
 
 // secure your private routes with jwt authentication middleware
@@ -97,12 +97,12 @@ app.post(privateRoutePrefix + '/creator/cover-pic', fupService.uploadCreatorCove
 
 
 server.listen(config.port, () => {
-  if (environment !== 'production' &&
-    environment !== 'development' &&
-    environment !== 'testing'
-  ) {
-    console.error(`NODE_ENV is set to ${environment}, but only production and development are valid.`);
-    process.exit(1);
-  }
-  return DB;
+	if (environment !== 'production' &&
+		environment !== 'development' &&
+		environment !== 'testing'
+	) {
+		console.error(`NODE_ENV is set to ${environment}, but only production and development are valid.`);
+		process.exit(1);
+	}
+	return DB;
 });
