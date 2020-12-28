@@ -22,6 +22,7 @@ const auth = require('./policies/auth.policy');
 
 // Import UserController for Passport and Multer (fupServive)
 const UserController = require('./controllers/UserController');
+const CreatorController = require('./controllers/CreatorController');
 
 
 // environment: development, staging, testing, production
@@ -89,8 +90,10 @@ app.all(privateRoutePrefix+'/*', (req, res, next) => auth(req, res, next));
 app.use('/public', mappedOpenRoutes);
 app.use(privateRoutePrefix, mappedAuthRoutes);
 
-// Upload profile picture route
+// File upload routes
 app.post(privateRoutePrefix + '/user/profile-pic', fupService.uploadProfilePic.single('input-profile-pic'), UserController().updateProfilePic);
+app.post(privateRoutePrefix + '/creator/profile-pic', fupService.uploadCreatorProfilePic, CreatorController().updateProfilePic);
+app.post(privateRoutePrefix + '/creator/cover-pic', fupService.uploadCreatorCoverPic, CreatorController().updateCoverPic);
 
 
 server.listen(config.port, () => {
