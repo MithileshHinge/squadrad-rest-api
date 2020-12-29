@@ -9,6 +9,12 @@ const privateRoutes = {
 	'GET /creator': 'CreatorController.getCreatorSelf',
 	'PUT /creator': 'CreatorController.updateFields',
 	//<Profile pic and cover pic routes in api.js>
+
+	//Pact API
+	'POST /creator/pact': 'PactController.createPact',
+	'GET /creator/pacts': 'PactController.getAllPacts',
+	'PUT /creator/pact': 'PactController.updateFields',
+	'DELETE /creator/pact': 'PactController.deletePact',
 };
 
 module.exports = privateRoutes;
