@@ -326,6 +326,7 @@ const UserController = () => {
 	};
 
 	const deleteUser = async (req, res) => {
+		// TODO: Remove creator profile, pacts, posts, free up memory, etc
 		if (req.body.password) {
 			try {
 				const user = await User.findByPk(req.token.id);

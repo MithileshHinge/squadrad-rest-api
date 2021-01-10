@@ -6,6 +6,10 @@ const PactController = () => {
 
 	const createPact = async (req, res) => {
 		try{
+
+			if (!req.isCreator)
+				return res.status(401).json({ msg: 'Unauthorized' });
+
 			const pact = await Pact.create({
 				user_id: req.token.id,
 				title: req.body.title,
@@ -59,7 +63,7 @@ const PactController = () => {
 			if (nrows[0] > 0)
 				return res.status(200).json({});
 			else
-				return res.status(500).json({ msg: 'Internal server error'});
+				return res.status(400).json({ msg: 'Bad Request'});
 		} catch (err) {
 			console.log(err);
 			return res.status(500).json({ msg: 'Internal server error' });

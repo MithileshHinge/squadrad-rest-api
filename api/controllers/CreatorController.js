@@ -91,12 +91,30 @@ const CreatorController = () => {
 		}
 	};
 
+	const isCreator = async (req, res, next) => {
+		try {
+			const creator = await Creator.findOne({where: {user_id: req.token.id}});
+			if (creator){
+				req.isCreator = true;
+				req.creator = creator;
+			}
+			else
+				req.isCreator = false;
+
+			return next();
+		} catch (err) {
+			console.log(err);
+			return res.status(500).json({ msg: 'Internal server error' });
+		}
+	};
+
 	return {
 		becomeCreator,
 		getCreatorSelf,
 		updateFields,
 		updateProfilePic,
 		updateCoverPic,
+		isCreator,
 	};
 };
 

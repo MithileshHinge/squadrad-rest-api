@@ -83,8 +83,11 @@ app.get('/auth/youtube/redirect', passport.authenticate('youtube', {session: fal
 	(req, res) => UserController().loginYoutubeCallback(req, res)
 );
 
-// secure your private routes with jwt authentication middleware
+// secure private routes with jwt authentication middleware
 app.all(privateRoutePrefix+'/*', (req, res, next) => auth(req, res, next));
+
+// check if user is creator before posting to creator api (crud operations on /creator are safe without this check, methods other than post (if restricted) should be checked in the function, so only POST /creator/* is required)
+app.post(privateRoutePrefix+'/creator/*', (req, res, next) => CreatorController().isCreator(req, res, next));
 
 // fill routes for express application
 app.use('/public', mappedOpenRoutes);
