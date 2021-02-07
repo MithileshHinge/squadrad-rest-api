@@ -91,17 +91,17 @@ const CreatorController = () => {
 		}
 	};
 
-	const isCreator = async (req, res, next) => {
+	const allowIfCreator = async (req, res, next) => {
 		try {
 			const creator = await Creator.findOne({where: {user_id: req.token.id}});
 			if (creator){
 				req.isCreator = true;
 				req.creator = creator;
+				return next();
 			}
-			else
-				req.isCreator = false;
-
-			return next();
+			else{
+				return res.status(403).json({ msg: 'Forbidden'});
+			}
 		} catch (err) {
 			console.log(err);
 			return res.status(500).json({ msg: 'Internal server error' });
@@ -114,7 +114,7 @@ const CreatorController = () => {
 		updateFields,
 		updateProfilePic,
 		updateCoverPic,
-		isCreator,
+		allowIfCreator,
 	};
 };
 

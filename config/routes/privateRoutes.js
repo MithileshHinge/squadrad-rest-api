@@ -15,6 +15,12 @@ const privateRoutes = {
 	'GET /creator/pacts': 'PactController.getAllPacts',
 	'PUT /creator/pact': 'PactController.updateFields',
 	'DELETE /creator/pact': 'PactController.deletePact',
+
+	//Post API
+	'POST /creator/post': 'PostController.createPost',
+	'GET /creator/posts': 'PostController.getAllPosts',
+	'PUT /creator/post': 'PostController.updateFields',
+	'DELETE /creator/post': 'PostController.deletePost',
 };
 
 module.exports = privateRoutes;

@@ -50,7 +50,7 @@ app.use(helmet({
 }));
 
 // parsing the request bodys
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 
@@ -87,17 +87,17 @@ app.get('/auth/youtube/redirect', passport.authenticate('youtube', {session: fal
 app.all(privateRoutePrefix+'/*', (req, res, next) => auth(req, res, next));
 
 // check if user is creator before posting to creator api (crud operations on /creator are safe without this check, methods other than post (if restricted) should be checked in the function, so only POST /creator/* is required)
-app.post(privateRoutePrefix+'/creator/*', (req, res, next) => CreatorController().isCreator(req, res, next));
+app.post(privateRoutePrefix+'/creator/*', (req, res, next) => CreatorController().allowIfCreator(req, res, next));
+
+// File upload routes
+app.post(privateRoutePrefix + '/user/profile-pic', fupService.uploadProfilePic, UserController().updateProfilePic);
+app.post(privateRoutePrefix + '/creator/profile-pic', fupService.uploadCreatorProfilePic, CreatorController().updateProfilePic);
+app.post(privateRoutePrefix + '/creator/cover-pic', fupService.uploadCreatorCoverPic, CreatorController().updateCoverPic);
+app.post(privateRoutePrefix + '/creator/post', fupService.uploadPost);
 
 // fill routes for express application
 app.use('/public', mappedOpenRoutes);
 app.use(privateRoutePrefix, mappedAuthRoutes);
-
-// File upload routes
-app.post(privateRoutePrefix + '/user/profile-pic', fupService.uploadProfilePic.single('input-profile-pic'), UserController().updateProfilePic);
-app.post(privateRoutePrefix + '/creator/profile-pic', fupService.uploadCreatorProfilePic, CreatorController().updateProfilePic);
-app.post(privateRoutePrefix + '/creator/cover-pic', fupService.uploadCreatorCoverPic, CreatorController().updateCoverPic);
-
 
 server.listen(config.port, () => {
 	if (environment !== 'production' &&
