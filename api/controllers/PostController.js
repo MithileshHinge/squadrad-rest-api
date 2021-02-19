@@ -75,7 +75,7 @@ const PostController = () => {
 		try {
 			const post = await Post.findByPk(req.body.post_id);
 			if (!post) {
-				return res.status(400).json({ msg: 'Bad Request: Pact not found' });
+				return res.status(400).json({ msg: 'Bad Request: Post not found' });
 			}
 
 			if (post.user_id === req.token.id) {

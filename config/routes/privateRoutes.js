@@ -21,6 +21,11 @@ const privateRoutes = {
 	'GET /creator/posts': 'PostController.getAllPosts',
 	'PUT /creator/post': 'PostController.updateFields',
 	'DELETE /creator/post': 'PostController.deletePost',
+
+	//Post Like API
+	'POST /post-like': 'PostLikeController.likePost',
+	'GET /post-like': 'PostLikeController.getPostLikes',
+	'DELETE /post-like': 'PostLikeController.unlikePost',
 };
 
 module.exports = privateRoutes;
