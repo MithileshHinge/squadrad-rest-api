@@ -26,6 +26,13 @@ const privateRoutes = {
 	'POST /post-like': 'PostLikeController.likePost',
 	'GET /post-like': 'PostLikeController.getPostLikes',
 	'DELETE /post-like': 'PostLikeController.unlikePost',
+
+	//Comment API
+	'POST /post/:post_id/comment': 'CommentController.createComment',
+	'GET /post/:post_id/comment': 'CommentController.getAllComments',
+	'PUT /post/:post_id/comment': 'CommentController.updateFields',
+	'DELETE /post/:post_id/comment': 'CommentController.deleteComment',
+
 };
 
 module.exports = privateRoutes;
