@@ -4,8 +4,6 @@ const PostLikeController = () => {
 
 	const likePost = async (req, res) => {
 		try {
-
-			//TODO : Testing and make entry unique
 			const like = await PostLike.create({
 				user_id: req.token.id,
 				post_id: req.params.post_id,

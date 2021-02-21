@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../../config/database');
 
-const PostLike = sequelize.define('PostLike', {
+const CommentLike = sequelize.define('CommentLike', {
 	like_id: {
 		type: Sequelize.INTEGER,
 		primaryKey: true,
@@ -11,13 +11,13 @@ const PostLike = sequelize.define('PostLike', {
 	user_id: {
 		type: Sequelize.INTEGER,
 		allowNull: false,
-		unique: 'compositeKey1', //make a unique user_id-post_id pair, can't have duplicate entries
+		unique: 'compositeKey1', //make a unique user_id-comment_id pair, can't have duplicate entires
 	},
-	post_id: {
+	comment_id: {
 		type: Sequelize.INTEGER,
 		allowNull: false,
 		unique: 'compositeKey1',
 	},
 });
 
-module.exports = PostLike;
+module.exports = CommentLike;
