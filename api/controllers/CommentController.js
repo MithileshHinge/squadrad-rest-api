@@ -51,7 +51,7 @@ const CommentController = () => {
 		try {
 			const nrows = await Comment.update(updateData, {
 				where: {
-					comment_id: req.body.comment_id,
+					comment_id: req.params.comment_id,
 					user_id: req.token.id,
 					post_id: req.params.post_id,
 				}
@@ -69,14 +69,17 @@ const CommentController = () => {
 
 	const deleteComment = async (req, res) => {
 		try {
-			const comment = await Comment.findByPk(req.body.comment_id);
-			if (!comment) {
+			const comment = await Comment.findByPk(req.params.comment_id);
+			if (!comment || comment.post_id != req.params.post_id) {
 				return res.status(404).json({ msg: 'Comment not found'});
 			}
-			
-			if (comment.user_id === req.token.id && comment.post_id == req.params.post_id) {
+
+			// Only comment's owner and post's owner can delete comments
+			if (comment.user_id === req.token.id) {
 				comment.destroy();
 				return res.status(200).json({comment});
+			} else {
+				//TODO: Check if requester is post's owner, if yes then delete comment
 			}
 
 			return res.status(401).json({msg: 'Unauthorized'});

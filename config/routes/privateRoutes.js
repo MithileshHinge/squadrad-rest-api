@@ -13,26 +13,26 @@ const privateRoutes = {
 	//Pact API
 	'POST /creator/pact': 'PactController.createPact',
 	'GET /creator/pacts': 'PactController.getAllPacts',
-	'PUT /creator/pact': 'PactController.updateFields',
-	'DELETE /creator/pact': 'PactController.deletePact',
+	'PUT /creator/pact/:pact_id': 'PactController.updateFields',
+	'DELETE /creator/pact/:pact_id': 'PactController.deletePact',
 
 	//Post API
 	'POST /creator/post': 'PostController.createPost',
 	'GET /creator/posts': 'PostController.getAllPosts',
-	'PUT /creator/post': 'PostController.updateFields',
-	'DELETE /creator/post': 'PostController.deletePost',
+	'GET /creator/post/:post_id': 'PostController.getPostByID',
+	'PUT /creator/post/:post_id': 'PostController.updateFields',
+	'DELETE /creator/post/:post_id': 'PostController.deletePost',
 
 	//Post Like API
-	'POST /post-like': 'PostLikeController.likePost',
-	'GET /post-like': 'PostLikeController.getPostLikes',
-	'DELETE /post-like': 'PostLikeController.unlikePost',
+	'POST /post/:post_id/like': 'PostLikeController.likePost',
+	'GET /post/:post_id/likes': 'PostLikeController.getPostLikes',
+	'DELETE /post/:post_id/like': 'PostLikeController.unlikePost',
 
 	//Comment API
 	'POST /post/:post_id/comment': 'CommentController.createComment',
-	'GET /post/:post_id/comment': 'CommentController.getAllComments',
-	'PUT /post/:post_id/comment': 'CommentController.updateFields',
-	'DELETE /post/:post_id/comment': 'CommentController.deleteComment',
-
+	'GET /post/:post_id/comment/:comment_id': 'CommentController.getAllComments',
+	'PUT /post/:post_id/comment/:comment_id': 'CommentController.updateFields',
+	'DELETE /post/:post_id/comment/:comment_id': 'CommentController.deleteComment',
 };
 
 module.exports = privateRoutes;

@@ -41,6 +41,18 @@ const PostController = () => {
 		}
 	};
 
+	const getPostByID = async (req, res) => {
+		try {
+			const post = await Post.findByPk(req.params.post_id)
+			if (!post)
+				return res.status(404).json({msg: "Post not found"});
+			return res.status(200).json(post);
+		} catch (err) {
+			console.log(err);
+			return res.status(500).json({msg: 'Internal server error'});
+		}
+	};
+
 	const updateFields = async (req, res) => {
 		const fields = Object.keys(req.body);
 		console.log(fields);
@@ -57,7 +69,7 @@ const PostController = () => {
 		try{
 			const nrows = await Post.update(updateData, {
 				where: {
-					post_id: req.body.post_id,
+					post_id: req.params.post_id,
 					user_id: req.token.id
 				}
 			});
@@ -73,9 +85,9 @@ const PostController = () => {
 
 	const deletePost = async (req, res) => {
 		try {
-			const post = await Post.findByPk(req.body.post_id);
+			const post = await Post.findByPk(req.params.post_id);
 			if (!post) {
-				return res.status(400).json({ msg: 'Bad Request: Post not found' });
+				return res.status(404).json({ msg: 'Post not found' });
 			}
 
 			if (post.user_id === req.token.id) {
@@ -93,6 +105,7 @@ const PostController = () => {
 	return {
 		createPost,
 		getAllPosts,
+		getPostByID,
 		updateFields,
 		deletePost,
 	};

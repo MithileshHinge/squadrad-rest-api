@@ -8,7 +8,7 @@ const PostLikeController = () => {
 			//TODO : Testing and make entry unique
 			const like = await PostLike.create({
 				user_id: req.token.id,
-				post_id: req.body.post_id,
+				post_id: req.params.post_id,
 			});
 
 			return res.status(200).json({like});
@@ -23,7 +23,7 @@ const PostLikeController = () => {
 			const like = await PostLike.findOne({
 				where: {
 					user_id: req.token.id,
-					post_id: req.body.post_id,
+					post_id: req.params.post_id,
 				}
 			});
 
@@ -42,7 +42,7 @@ const PostLikeController = () => {
 		try {
 			const numLikes = await PostLike.count({
 				where: {
-					post_id: req.body.post_id,
+					post_id: req.params.post_id,
 				}
 			});
 

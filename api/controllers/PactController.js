@@ -56,7 +56,7 @@ const PactController = () => {
 		try {
 			const nrows = await Pact.update(updateData,
 				{ where: {
-					pact_id: req.body.pact_id,
+					pact_id: req.params.pact_id,
 					user_id: req.token.id
 				}
 			});
@@ -72,7 +72,7 @@ const PactController = () => {
 
 	const deletePact = async (req, res) => {
 		try {
-			const pact = await Pact.findByPk(req.body.pact_id);
+			const pact = await Pact.findByPk(req.params.pact_id);
 
 			if (!pact) {
 				return res.status(400).json({ msg: 'Bad Request: Pact not found' });
