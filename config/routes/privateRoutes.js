@@ -38,6 +38,11 @@ const privateRoutes = {
 	'POST /post/:post_id/comment/:comment_id/like': 'CommentLikeController.likeComment',
 	'GET /post/:post_id/comment/:comment_id/likes': 'CommentLikeController.getCommentLikes',
 	'DELETE /post/:post_id/comment/:comment_id/like': 'CommentLikeController.unlikeComment',
+
+	//Message API
+	'POST /message/:to_user_id': 'MessageController.saveMessage',
+	'GET /message/:to_user_id': 'MessageController.getMessages',
+	'PUT /message/:from_user_id': 'MessageController.markAsRead',
 };
 
 module.exports = privateRoutes;
