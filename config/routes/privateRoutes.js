@@ -23,6 +23,11 @@ const privateRoutes = {
 	'PUT /creator/post/:post_id': 'PostController.updateFields',
 	'DELETE /creator/post/:post_id': 'PostController.deletePost',
 
+	//Goal API
+	'POST /creator/goal': 'GoalController.createGoal',
+	'PUT /creator/goal/:goal_id': 'GoalController.updateFields',
+	'DELETE /creator/goal/:goal_id': 'GoalController.deleteGoal',
+
 	//Post Like API
 	'POST /post/:post_id/like': 'PostLikeController.likePost',
 	'GET /post/:post_id/likes': 'PostLikeController.getPostLikes',
