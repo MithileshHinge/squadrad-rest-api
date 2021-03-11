@@ -48,6 +48,10 @@ const privateRoutes = {
 	'POST /message/:to_user_id': 'MessageController.saveMessage',
 	'GET /message/:to_user_id': 'MessageController.getMessages',
 	'PUT /message/:from_user_id': 'MessageController.markAsRead',
+
+	//Notification API
+	'GET /notifications': 'NotificationController.getNotifs',
+	'PUT /notifications': 'NotificationController.markAsRead',
 };
 
 module.exports = privateRoutes;
