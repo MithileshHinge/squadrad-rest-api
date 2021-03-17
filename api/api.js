@@ -24,6 +24,9 @@ const auth = require('./policies/auth.policy');
 const UserController = require('./controllers/UserController');
 const CreatorController = require('./controllers/CreatorController');
 
+// Get Razorpay instance to attach to /payments requests below
+const rzpService = require('./services/rzp.service');
+const rzpInstance = rzpService.getInstance(myKeys.RZP_TEST_ID, myKeys.RZP_TEST_SECRET);
 
 // environment: development, staging, testing, production
 const environment = process.env.NODE_ENV;
@@ -94,6 +97,16 @@ app.post(privateRoutePrefix + '/user/profile-pic', fupService.uploadProfilePic, 
 app.post(privateRoutePrefix + '/creator/profile-pic', fupService.uploadCreatorProfilePic, CreatorController().updateProfilePic);
 app.post(privateRoutePrefix + '/creator/cover-pic', fupService.uploadCreatorCoverPic, CreatorController().updateCoverPic);
 app.post(privateRoutePrefix + '/creator/post', fupService.uploadPost);
+
+// Attach Razorpay instance to all /payments routes
+app.all(privateRoutePrefix + '/payments', (req, res, next) => {
+	if (rzpInstance){
+		req.rzpInstance = rzpInstance;
+		return next();
+	}else{
+		return res.status(500).json({"msg": "Internal Server Error: Razorpay not instantiated" });
+	}
+});
 
 // fill routes for express application
 app.use('/public', mappedOpenRoutes);

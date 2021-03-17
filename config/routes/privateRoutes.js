@@ -52,6 +52,10 @@ const privateRoutes = {
 	//Notification API
 	'GET /notifications': 'NotificationController.getNotifs',
 	'PUT /notifications': 'NotificationController.markAsRead',
+
+	//ManualSub API
+	'POST /payments/subscription/manual/:creator_user_id/:pact_id': 'ManualSubsController.createSubscription',
+	'DELETE /payments/subscription/manual/:creator_user_id/:pact_id': 'ManualSubsController.cancelSubscription',
 };
 
 module.exports = privateRoutes;

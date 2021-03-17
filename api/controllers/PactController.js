@@ -90,11 +90,21 @@ const PactController = () => {
 		}
 	};
 
+	//internal server calls
+	const getPactById = async (pact_id) => {
+		try {
+			return await Pact.findByPk(pact_id);
+		} catch (err) {
+			console.log(err);
+		}
+	}
+
 	return {
 		createPact,
 		getAllPacts,
 		updateFields,
 		deletePact,
+		getPactById,
 	};
 };
 
