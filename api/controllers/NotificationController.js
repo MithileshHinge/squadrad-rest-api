@@ -1,7 +1,6 @@
 const Notification = require('../models/Notification');
 
 const NotificationController = () => {
-
 	const createNotif = async (notifData) => {
 		try {
 			const notif = await Notification.create({
@@ -10,9 +9,10 @@ const NotificationController = () => {
 				link: notifData.link,
 			});
 
-			return res.status(200).json(notif);
+			return notif;
 		} catch (err) {
-			console.log(err);	
+			console.log(err);
+			return null;
 		}
 	};
 
@@ -23,42 +23,44 @@ const NotificationController = () => {
 					user_id: req.token.id,
 				},
 				order: [['createdAt', 'DESC']],
-				offset: req.body.offset, //pagination, if set
-				limit: req.body.limit, //pagination, if set
+				offset: req.body.offset, // pagination, if set
+				limit: req.body.limit, // pagination, if set
 			});
 
-			return res.status(200).json({notifs});
+			return res.status(200).json({ notifs });
 		} catch (err) {
 			console.log(err);
-			return res.status(500).json({msg: 'Internal server error'});
+			return res.status(500).json({ msg: 'Internal server error' });
 		}
 	};
 
 	const markAsRead = async (req, res) => {
 		try {
-			const nrows = await Notification.update({read: true}, {
+			// eslint-disable-next-line no-unused-vars
+			const nrows = await Notification.update({ read: true }, {
 				where: {
 					user_id: req.token.id,
-				}
+				},
 			});
 			return res.status(200).json({});
 		} catch (err) {
 			console.log(err);
-			return res.status(500).json({msg: 'Internal server error'});
+			return res.status(500).json({ msg: 'Internal server error' });
 		}
 	};
 
 	const deleteNotif = async (notifData) => {
 		try {
 			const notif = await Notification.findOne({
-				where: notifData
+				where: notifData,
 			});
-			if (notif)
+			if (notif) {
 				notif.destroy();
+			}
 		} catch (err) {
 			console.log(err);
 		}
-	}
+	};
 
 	return {
 		createNotif,

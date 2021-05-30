@@ -11,7 +11,7 @@ const PostLike = sequelize.define('PostLike', {
 	user_id: {
 		type: Sequelize.INTEGER,
 		allowNull: false,
-		unique: 'compositeKey1', //make a unique user_id-post_id pair, can't have duplicate entries
+		unique: 'compositeKey1', // make a unique user_id-post_id pair, can't have duplicate entries
 	},
 	post_id: {
 		type: Sequelize.INTEGER,

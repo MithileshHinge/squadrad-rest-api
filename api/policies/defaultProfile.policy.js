@@ -1,7 +1,5 @@
-const getDefaultProfilePic = () => {
-	return "default/1.jpg"
-}
+const getDefaultProfilePic = () => 'default/1.jpg';
 
 module.exports = {
 	getDefaultProfilePic,
-}
+};

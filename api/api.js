@@ -25,6 +25,7 @@ const CreatorController = require('./controllers/CreatorController');
 
 // Get Razorpay instance to attach to /payments requests below
 const rzpService = require('./services/rzp.service');
+
 const rzpInstance = rzpService.getInstance(myKeys.RZP_TEST_ID, myKeys.RZP_TEST_SECRET);
 
 // environment: development, staging, testing, production
@@ -60,51 +61,53 @@ app.use(express.json());
 passport.use(new GoogleStrategy({
 	clientID: myKeys.GOOGLE_CLIENT_ID,
 	clientSecret: myKeys.GOOGLE_CLIENT_SECRET,
-	callbackURL: "/auth/google/redirect"
+	callbackURL: '/auth/google/redirect',
 }, (accessToken, refreshToken, profile, done) => UserController().loginGoogle(accessToken, refreshToken, profile, done)));
 
-app.get('/auth/google', passport.authenticate('google', {session: false, scope: 'openid profile email'}));
-app.get('/auth/google/redirect',
-	passport.authenticate('google', {session: false, failureRedirect: '/login'}), 
-	(req, res) => UserController().loginGoogleCallback(req, res)
+app.get('/auth/google', passport.authenticate('google', { session: false, scope: 'openid profile email' }));
+app.get(
+	'/auth/google/redirect',
+	passport.authenticate('google', { session: false, failureRedirect: '/login' }),
+	(req, res) => UserController().loginGoogleCallback(req, res),
 );
 
 // passport-youtube-v3 strategy -- https://github.com/yanatan16/passport-youtube-v3#readme
 passport.use(new YoutubeStrategy({
 	clientID: myKeys.GOOGLE_CLIENT_ID,
 	clientSecret: myKeys.GOOGLE_CLIENT_SECRET,
-	callbackURL: "/auth/youtube/redirect",
+	callbackURL: '/auth/youtube/redirect',
 	scope: ['https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/youtube.readonly'],
 	authorizationParams: {
-		accessType: 'offline'
-	}
+		accessType: 'offline',
+	},
 }, (accessToken, refreshToken, profile, done) => UserController().loginYoutube(accessToken, refreshToken, profile, done)));
 
-app.get('/auth/youtube', passport.authenticate('youtube', {session: false}));
-app.get('/auth/youtube/redirect', passport.authenticate('youtube', {session: false, failureRedirect: '/login'}),
-	(req, res) => UserController().loginYoutubeCallback(req, res)
+app.get('/auth/youtube', passport.authenticate('youtube', { session: false }));
+app.get(
+	'/auth/youtube/redirect',
+	passport.authenticate('youtube', { session: false, failureRedirect: '/login' }),
+	(req, res) => UserController().loginYoutubeCallback(req, res),
 );
 
 // secure private routes with jwt authentication middleware
-app.all(privateRoutePrefix+'/*', (req, res, next) => auth(req, res, next));
+app.all(`${privateRoutePrefix}/*`, (req, res, next) => auth(req, res, next));
 
 // check if user is creator before posting to creator api (crud operations on /creator are safe without this check, methods other than post (if restricted) should be checked in the function, so only POST /creator/* is required)
-app.post(privateRoutePrefix+'/creator/*', (req, res, next) => CreatorController().allowIfCreator(req, res, next));
+app.post(`${privateRoutePrefix}/creator/*`, (req, res, next) => CreatorController().allowIfCreator(req, res, next));
 
 // File upload routes
-app.post(privateRoutePrefix + '/user/profile-pic', fupService.uploadProfilePic, UserController().updateProfilePic);
-app.post(privateRoutePrefix + '/creator/profile-pic', fupService.uploadCreatorProfilePic, CreatorController().updateProfilePic);
-app.post(privateRoutePrefix + '/creator/cover-pic', fupService.uploadCreatorCoverPic, CreatorController().updateCoverPic);
-app.post(privateRoutePrefix + '/creator/post', fupService.uploadPost);
+app.post(`${privateRoutePrefix}/user/profile-pic`, fupService.uploadProfilePic, UserController().updateProfilePic);
+app.post(`${privateRoutePrefix}/creator/profile-pic`, fupService.uploadCreatorProfilePic, CreatorController().updateProfilePic);
+app.post(`${privateRoutePrefix}/creator/cover-pic`, fupService.uploadCreatorCoverPic, CreatorController().updateCoverPic);
+app.post(`${privateRoutePrefix}/creator/post`, fupService.uploadPost);
 
 // Attach Razorpay instance to all /payments routes
-app.all(privateRoutePrefix + '/payments', (req, res, next) => {
-	if (rzpInstance){
+app.all(`${privateRoutePrefix}/payments`, (req, res, next) => {
+	if (rzpInstance) {
 		req.rzpInstance = rzpInstance;
 		return next();
-	}else{
-		return res.status(500).json({"msg": "Internal Server Error: Razorpay not instantiated" });
 	}
+	return res.status(500).json({ msg: 'Internal Server Error: Razorpay not instantiated' });
 });
 
 // fill routes for express application

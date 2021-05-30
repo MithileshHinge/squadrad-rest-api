@@ -103,7 +103,7 @@ const Creator = sequelize.define('Creator', {
 		type: Sequelize.BOOLEAN,
 		defaultValue: false,
 		allowNull: false,
-	}
+	},
 });
 
 // eslint-disable-next-line

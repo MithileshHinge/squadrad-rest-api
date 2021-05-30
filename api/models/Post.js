@@ -41,7 +41,7 @@ const Post = sequelize.define('Post', {
 		type: Sequelize.BOOLEAN,
 		defaultValue: false,
 		allowNull: false,
-	}
+	},
 });
 
 module.exports = Post;

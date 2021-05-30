@@ -1,7 +1,6 @@
 const CommentLike = require('../models/CommentLike');
 
 const CommentLikeController = () => {
-
 	const likeComment = async (req, res) => {
 		try {
 			const like = await CommentLike.create({
@@ -9,10 +8,10 @@ const CommentLikeController = () => {
 				comment_id: req.params.comment_id,
 			});
 
-			return res.status(200).json({like});
-		} catch (err){
+			return res.status(200).json({ like });
+		} catch (err) {
 			console.log(err);
-			return res.status(500).json({msg: 'Internal server error'});
+			return res.status(500).json({ msg: 'Internal server error' });
 		}
 	};
 
@@ -22,18 +21,18 @@ const CommentLikeController = () => {
 				where: {
 					user_id: req.token.id,
 					comment_id: req.params.comment_id,
-				}
+				},
 			});
 
 			if (like) {
 				like.destroy();
-				return res.status(200).json({like});
+				return res.status(200).json({ like });
 			}
-			return res.status(400).json({ msg: 'Bad Request'});
-		} catch (err){
+			return res.status(400).json({ msg: 'Bad Request' });
+		} catch (err) {
 			console.log(err);
-			return res.status(500).json({msg: 'Internal server error'});
-		} 
+			return res.status(500).json({ msg: 'Internal server error' });
+		}
 	};
 
 	const getCommentLikes = async (req, res) => {
@@ -41,13 +40,13 @@ const CommentLikeController = () => {
 			const numLikes = await CommentLike.count({
 				where: {
 					comment_id: req.params.comment_id,
-				}
+				},
 			});
 
-			return res.status(200).json({numLikes: numLikes})
-		} catch (err){
+			return res.status(200).json({ numLikes });
+		} catch (err) {
 			console.log(err);
-			return res.status(500).json({msg: 'Internal server error'});
+			return res.status(500).json({ msg: 'Internal server error' });
 		}
 	};
 

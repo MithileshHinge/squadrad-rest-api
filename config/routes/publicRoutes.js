@@ -4,7 +4,7 @@ const publicRoutes = {
 	'POST /login': 'UserController.login',
 	'POST /validate': 'UserController.validate',
 
-	
+
 	'GET /creator/:user_id/goals': 'GoalController.getAllGoals',
 };
 

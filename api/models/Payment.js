@@ -16,7 +16,7 @@ const Payment = sequelize.define('Payment', {
 		type: Sequelize.INTEGER,
 		allowNull: false,
 	},
-	paid_amount: { //in paise
+	paid_amount: { // in paise
 		type: Sequelize.INTEGER,
 		allowNull: false,
 	},

@@ -1,4 +1,5 @@
 const moment = require('moment');
+const axios = require('axios');
 const User = require('../models/User');
 const authService = require('../services/auth.service');
 const bcryptService = require('../services/bcrypt.service');
@@ -9,7 +10,7 @@ const allowedFields = ['name', 'deactivated'];
 const UserController = () => {
 	const register = async (req, res) => {
 		const { body } = req;
-		//console.log(body);
+		// console.log(body);
 
 		if (body.password === body.password2) {
 			try {
@@ -35,7 +36,7 @@ const UserController = () => {
 
 	const login = async (req, res) => {
 		const { email, password } = req.body;
-		//console.log(req.body);
+		// console.log(req.body);
 
 		if (email && password) {
 			try {
@@ -70,7 +71,7 @@ const UserController = () => {
 	// Google auth - see api.js
 	// Auto sign up if user doesn't exist
 	const loginGoogle = async (accessToken, refreshToken, profile, done) => {
-		//console.log("GOOGLE_LOGIN : " + JSON.stringify(profile));
+		// console.log("GOOGLE_LOGIN : " + JSON.stringify(profile));
 		/* SAMPLE profile
 		{
 			"id":"115799646981609673476",
@@ -85,46 +86,57 @@ const UserController = () => {
 			"provider":"google",
 			"_raw":"{\n  \"sub\": \"115799646981609673476\",\n  \"name\": \"Mithilesh Hinge\",\n  \"given_name\": \"Mithilesh\",\n  \"family_name\": \"Hinge\",\n  \"picture\": \"https://lh3.googleusercontent.com/a-/AOh14GhsHWJdRE08h6iEAyq5hBhMhTFTzctBmGJ1ASyR6A\\u003ds96-c\",\n  \"email\": \"mithhinge@gmail.com\",\n  \"email_verified\": true,\n  \"locale\": \"en\"\n}","_json":{"sub":"115799646981609673476","name":"Mithilesh Hinge","given_name":"Mithilesh","family_name":"Hinge","picture":"https://lh3.googleusercontent.com/a-/AOh14GhsHWJdRE08h6iEAyq5hBhMhTFTzctBmGJ1ASyR6A=s96-c","email":"mithhinge@gmail.com","email_verified":true,"locale":"en"}}
 		*/
-		try{
-			//Check if profile pic is default
-			let profile_pic = profile.photos[0].value;
-			if (profile_pic.endsWith("photo.jpg"))
-				profile_pic = defaultProfilePolicy.getDefaultProfilePic();
+		try {
+			// Check if profile pic is default
+			let profilePic = profile.photos[0].value;
+			if (profilePic.endsWith('photo.jpg')) {
+				profilePic = defaultProfilePolicy.getDefaultProfilePic();
+			}
+			// eslint-disable-next-line no-unused-vars
 			const [user, created] = await User.findOrCreate({
-				where: {email : profile.emails[0].value},
+				where: { email: profile.emails[0].value },
 				defaults: {
-					password : accessToken,
+					password: accessToken,
 					name: profile.displayName,
-					profile_pic: profile_pic,
+					profile_pic: profilePic,
 					google_token: accessToken,
 					google_refresh_token: refreshToken,
-				}
+				},
 			});
 			return done(null, user);
-		} catch(err){
+		} catch (err) {
 			return done(err, false);
 		}
-		
 	};
 
 	const loginGoogleCallback = (req, res) => {
-		const user = req.user;
-		if (!user){
-			return res.status(500).json({ msg: 'Internal server error'});
+		const { user } = req;
+		if (!user) {
+			return res.status(500).json({ msg: 'Internal server error' });
 		}
-		//console.log("GOOGLE_CALLBACK : ");
-		//console.log(user);
-		if (req.isAuthenticated()){
+		// console.log("GOOGLE_CALLBACK : ");
+		// console.log(user);
+		if (req.isAuthenticated()) {
 			const token = authService().issue({ id: user.user_id });
-			return res.status(200).json({token, user});
-		}else {
-			return res.status(401).json({ msg: 'Unauthorized' });
+			return res.status(200).json({ token, user });
 		}
+		return res.status(401).json({ msg: 'Unauthorized' });
 	};
+
+	async function getGoogleProfile(accessToken) {
+		try {
+			const res = await axios.get(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${accessToken}`);
+			// return {email: res.data.email, picture: res.data.picture};
+			return res.data.email;
+		} catch (err) {
+			throw err;
+		}
+	}
 
 	// Youtube auth
 	// Auto sign up if user doesn't exist
 	const loginYoutube = async (accessToken, refreshToken, profile, done) => {
+		// eslint-disable-next-line no-param-reassign, no-underscore-dangle
 		profile = profile._json;
 		/*
 			SAMPLE profile
@@ -135,7 +147,7 @@ const UserController = () => {
 					"totalResults": 1,
 					"resultsPerPage": 5
 				},
-				"items": 
+				"items":
 				[{
 					"kind": "youtube#channel",
 					"etag": "9EaG4wvbFZgESbPxf7X71F7DGiM",
@@ -252,51 +264,50 @@ const UserController = () => {
 				}
 			}
 		*/
-	 //console.log(profile.items[0].snippet);
+		// console.log(profile.items[0].snippet);
 
 		try {
 			const email = await getGoogleProfile(accessToken);
 
+			// eslint-disable-next-line no-unused-vars
 			const [user, created] = await User.findOrCreate({
-				where: {email: email},
+				where: { email },
 				defaults: {
 					name: profile.items[0].snippet.title,
 					password: accessToken,
 					profile_pic: profile.items[0].snippet.thumbnails.medium.url,
 					youtube_token: accessToken,
-					youtube_refresh_token: refreshToken
-				}
+					youtube_refresh_token: refreshToken,
+				},
 			});
 			return done(null, user);
-		} catch(err) {
+		} catch (err) {
 			return done(err, false);
 		}
 	};
 
 	const loginYoutubeCallback = (req, res) => {
-		const user = req.user;
-		if (!user){
-			return res.status(500).json({ msg: 'Internal server error'});
+		const { user } = req;
+		if (!user) {
+			return res.status(500).json({ msg: 'Internal server error' });
 		}
 
-		if (req.isAuthenticated()){
+		if (req.isAuthenticated()) {
 			const token = authService().issue({ id: user.user_id });
-			return res.status(200).json({token, user});
-		}else {
-			return res.status(401).json({ msg: 'Unauthorized' });
+			return res.status(200).json({ token, user });
 		}
+		return res.status(401).json({ msg: 'Unauthorized' });
 	};
 
 	const updateProfilePic = async (req, res) => {
-		const user_id = req.token.id;
-		try{
+		try {
 			User.update(
 				{ profile_pic: req.file.filename },
-				{ where: {user_id: req.token.id}}
+				{ where: { user_id: req.token.id } },
 			);
 		} catch (err) {
 			console.error(err);
-			return res.status(500).json({ msg: 'Internal server error'});
+			return res.status(500).json({ msg: 'Internal server error' });
 		}
 		return res.status(200).json({});
 	};
@@ -304,24 +315,24 @@ const UserController = () => {
 	const updateFields = async (req, res) => {
 		const fields = Object.keys(req.body);
 		console.log(fields);
-		let updateData = {};
+		const updateData = {};
 
-		for (let field of fields){
-			if (allowedFields.includes(field)){
+		fields.forEach((field) => {
+			if (allowedFields.includes(field)) {
 				updateData[field] = req.body[field];
 			}
-		}
+		});
 
 		console.log(updateData);
 
-		try{
-			const nrows = await User.update(updateData, { where: {user_id: req.token.id}} );
-			if (nrows[0] > 0)
-					return res.status(200).json({});
-			else
-					return res.status(500).json({ msg: 'Internal server error'});
+		try {
+			const nrows = await User.update(updateData, { where: { user_id: req.token.id } });
+			if (nrows[0] > 0) {
+				return res.status(200).json({});
+			}
+			return res.status(500).json({ msg: 'Internal server error' });
 		} catch (err) {
-			return res.status(500).json({ msg: 'Internal server error'});
+			return res.status(500).json({ msg: 'Internal server error' });
 		}
 	};
 
@@ -371,19 +382,6 @@ const UserController = () => {
 			return res.status(500).json({ msg: 'Internal server error' });
 		}
 	};
-
-	async function getGoogleProfile(accessToken){
-		const axios = require('axios');
-		
-		try{
-			const res = await axios.get("https://www.googleapis.com/oauth2/v1/userinfo?access_token="+accessToken);
-			//return {email: res.data.email, picture: res.data.picture};
-			return res.data.email;
-		} catch (err) {
-			throw err;
-		}
-	}
-
 
 	return {
 		register,

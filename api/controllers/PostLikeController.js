@@ -1,7 +1,6 @@
 const PostLike = require('../models/PostLike');
 
 const PostLikeController = () => {
-
 	const likePost = async (req, res) => {
 		try {
 			const like = await PostLike.create({
@@ -9,10 +8,10 @@ const PostLikeController = () => {
 				post_id: req.params.post_id,
 			});
 
-			return res.status(200).json({like});
-		}catch (err){
+			return res.status(200).json({ like });
+		} catch (err) {
 			console.log(err);
-			return res.status(500).json({msg: 'Internal server error'});
+			return res.status(500).json({ msg: 'Internal server error' });
 		}
 	};
 
@@ -22,17 +21,17 @@ const PostLikeController = () => {
 				where: {
 					user_id: req.token.id,
 					post_id: req.params.post_id,
-				}
+				},
 			});
 
-			if (like){
+			if (like) {
 				like.destroy();
-				return res.status(200).json({like});
+				return res.status(200).json({ like });
 			}
 			return res.status(400).json({ msg: 'Bad Request' });
-		}catch (err){
+		} catch (err) {
 			console.log(err);
-			return res.status(500).json({msg: 'Internal server error'});
+			return res.status(500).json({ msg: 'Internal server error' });
 		}
 	};
 
@@ -41,13 +40,13 @@ const PostLikeController = () => {
 			const numLikes = await PostLike.count({
 				where: {
 					post_id: req.params.post_id,
-				}
+				},
 			});
 
-			return res.status(200).json({numLikes: numLikes});
+			return res.status(200).json({ numLikes });
 		} catch (err) {
 			console.log(err);
-			return res.status(500).json({msg: 'Internal server error'});
+			return res.status(500).json({ msg: 'Internal server error' });
 		}
 	};
 

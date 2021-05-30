@@ -27,8 +27,8 @@ const Pact = sequelize.define('Pact', {
 				if (value < 30) {
 					throw new Error('Amount must be greater than 30');
 				}
-			}
-		}
+			},
+		},
 	},
 	supporters_limit: {
 		type: Sequelize.INTEGER,
@@ -37,7 +37,7 @@ const Pact = sequelize.define('Pact', {
 		type: Sequelize.BOOLEAN,
 		defaultValue: false,
 		allowNull: false,
-	}
+	},
 });
 
 module.exports = Pact;

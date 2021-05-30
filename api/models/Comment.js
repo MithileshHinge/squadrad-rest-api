@@ -24,12 +24,12 @@ const Comment = sequelize.define('Comment', {
 		allowNull: false,
 		defaultValue: false,
 		validate: {
-			isParentIDSet(value){ //if this is a reply, check if parent comment's id is given
-				if (value && this.parent_id == null){
+			isParentIDSet(value) { // if this is a reply, check if parent comment's id is given
+				if (value && this.parent_id == null) {
 					throw new Error('No parent_id provided');
 				}
-			}
-		}
+			},
+		},
 	},
 	comment: {
 		type: Sequelize.STRING,
@@ -42,7 +42,7 @@ const Comment = sequelize.define('Comment', {
 		type: Sequelize.BOOLEAN,
 		defaultValue: false,
 		allowNull: false,
-	}
+	},
 });
 
 module.exports = Comment;

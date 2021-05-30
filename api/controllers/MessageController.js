@@ -1,10 +1,9 @@
-const {Op} = require('sequelize');
+const { Op } = require('sequelize');
 const Message = require('../models/Message');
 
-//const allowedFields = ["read"];
+// const allowedFields = ["read"];
 
 const MessageController = () => {
-
 	const saveMessage = async (req, res) => {
 		try {
 			const message = await Message.create({
@@ -13,10 +12,10 @@ const MessageController = () => {
 				message: req.body.message,
 			});
 
-			return res.status(200).json({message});
+			return res.status(200).json({ message });
 		} catch (err) {
 			console.log(err);
-			return res.status(500).json({msg: 'Internal server error'});
+			return res.status(500).json({ msg: 'Internal server error' });
 		}
 	};
 
@@ -30,16 +29,16 @@ const MessageController = () => {
 					}, {
 						from_user_id: req.params.to_user_id,
 						to_user_id: req.token.id,
-					}]
+					}],
 				},
 				order: [['createdAt', 'DESC']],
-				offset: req.body.offset, //pagination, if implemented
+				offset: req.body.offset, // pagination, if implemented
 				limit: req.body.limit, // pagination, if implemented
 			});
-			return res.status(200).json({messages});
+			return res.status(200).json({ messages });
 		} catch (err) {
 			console.log(err);
-			return res.status(500).json({msg: 'Internal server error'});
+			return res.status(500).json({ msg: 'Internal server error' });
 		}
 	};
 
@@ -70,16 +69,17 @@ const MessageController = () => {
 
 	const markAsRead = async (req, res) => {
 		try {
-			const nrows = await Message.update({read: true}, {
+			// eslint-disable-next-line no-unused-vars
+			const nrows = await Message.update({ read: true }, {
 				where: {
 					from_user_id: req.params.from_user_id,
 					to_user_id: req.token.id,
-				}
+				},
 			});
 			return res.status(200).json({});
 		} catch (err) {
 			console.log(err);
-			return res.status(500).json({msg: 'Internal server error'});
+			return res.status(500).json({ msg: 'Internal server error' });
 		}
 	};
 

@@ -4,17 +4,16 @@ const allowedFields = ['page_name', 'plural', 'creating_what', 'about', 'intro_v
 
 // NEVER USE creator_id or primary key (findByPk)
 const CreatorController = () => {
-
 	const becomeCreator = async (req, res) => {
 		try {
 			const creator = await Creator.create({
 				user_id: req.token.id,
 				page_name: req.body.page_name,
 				plural: req.body.plural,
-				creating_what: req.body.creating_what, 
+				creating_what: req.body.creating_what,
 			});
 
-			return res.status(200).json({creator});
+			return res.status(200).json({ creator });
 		} catch (err) {
 			console.log(err);
 			return res.status(500).json({ msg: 'Internal server error' });
@@ -23,14 +22,14 @@ const CreatorController = () => {
 
 	const getCreatorSelf = async (req, res) => {
 		try {
-			const creator = await Creator.findOne({where: {user_id: req.token.id}});
+			const creator = await Creator.findOne({ where: { user_id: req.token.id } });
 			if (!creator) {
-				return res.status(500).json({ msg: 'Internal server error'});
+				return res.status(500).json({ msg: 'Internal server error' });
 			}
 
 			return res.status(200).json(creator);
 		} catch (err) {
-			return res.status(500).json({ msg: 'Internal server error'});
+			return res.status(500).json({ msg: 'Internal server error' });
 		}
 	};
 
@@ -38,12 +37,12 @@ const CreatorController = () => {
 		try {
 			const nrows = await Creator.update(
 				{ profile_pic: req.file.filename },
-				{ where: {user_id: req.token.id}}
+				{ where: { user_id: req.token.id } },
 			);
-			if (nrows[0] > 0)
+			if (nrows[0] > 0) {
 				return res.status(200).json({});
-			else
-				return res.status(500).json({ msg: 'Internal server error'});
+			}
+			return res.status(500).json({ msg: 'Internal server error' });
 		} catch (err) {
 			console.log(err);
 			return res.status(500).json({ msg: 'Internal server error' });
@@ -54,12 +53,12 @@ const CreatorController = () => {
 		try {
 			const nrows = await Creator.update(
 				{ cover_pic: req.file.filename },
-				{ where: {user_id: req.token.id}}
+				{ where: { user_id: req.token.id } },
 			);
-			if (nrows[0] > 0)
+			if (nrows[0] > 0) {
 				return res.status(200).json({});
-			else
-				return res.status(500).json({ msg: 'Internal server error'});
+			}
+			return res.status(500).json({ msg: 'Internal server error' });
 		} catch (err) {
 			console.log(err);
 			return res.status(500).json({ msg: 'Internal server error' });
@@ -69,22 +68,22 @@ const CreatorController = () => {
 	const updateFields = async (req, res) => {
 		const fields = Object.keys(req.body);
 		console.log(fields);
-		let updateData = {};
+		const updateData = {};
 
-		for (let field of fields){
-			if (allowedFields.includes(field)){
-				updateData[field] = req.body[field];    
+		fields.forEach((field) => {
+			if (allowedFields.includes(field)) {
+				updateData[field] = req.body[field];
 			}
-		}
+		});
 
 		console.log(updateData);
 
 		try {
-			const nrows = await Creator.update(updateData, { where: {user_id: req.token.id}} );
-			if (nrows[0] > 0)
+			const nrows = await Creator.update(updateData, { where: { user_id: req.token.id } });
+			if (nrows[0] > 0) {
 				return res.status(200).json({});
-			else
-				return res.status(500).json({ msg: 'Internal server error'});
+			}
+			return res.status(500).json({ msg: 'Internal server error' });
 		} catch (err) {
 			console.log(err);
 			return res.status(500).json({ msg: 'Internal server error' });
@@ -93,15 +92,13 @@ const CreatorController = () => {
 
 	const allowIfCreator = async (req, res, next) => {
 		try {
-			const creator = await Creator.findOne({where: {user_id: req.token.id}});
-			if (creator){
+			const creator = await Creator.findOne({ where: { user_id: req.token.id } });
+			if (creator) {
 				req.isCreator = true;
 				req.creator = creator;
 				return next();
 			}
-			else{
-				return res.status(403).json({ msg: 'Forbidden'});
-			}
+			return res.status(403).json({ msg: 'Forbidden' });
 		} catch (err) {
 			console.log(err);
 			return res.status(500).json({ msg: 'Internal server error' });

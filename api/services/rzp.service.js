@@ -1,14 +1,10 @@
-const Razorpay = require('razorpay')
+const Razorpay = require('razorpay');
 
-const getInstance = (key_id, key_secret) => {
-	return new Razorpay({
-		key_id: key_id,
-		key_secret: key_secret
-	});
-};
+const getInstance = (keyId, keySecret) => new Razorpay({
+	key_id: keyId,
+	key_secret: keySecret,
+});
 
-const createOrder = (rzpInstance, options) => {
-	return rzpInstance.orders.create(options);
-};
+const createOrder = (rzpInstance, options) => rzpInstance.orders.create(options);
 
-module.exports = {getInstance, createOrder};
+module.exports = { getInstance, createOrder };

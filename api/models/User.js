@@ -1,4 +1,5 @@
 const Sequelize = require('sequelize');
+// eslint-disable-next-line import/no-extraneous-dependencies
 const Validator = require('validator');
 const bcryptService = require('../services/bcrypt.service');
 
@@ -38,7 +39,7 @@ const User = sequelize.define('User', {
 		allowNull: false,
 		validate: {
 			isAlphaSplit(value) {
-				if(!value.split(' ').every(function (word) {return Validator.isAlpha(word); } )){
+				if (!value.split(' ').every((word) => Validator.isAlpha(word))) {
 					throw new Error('Only alphabets are allowed in a name');
 				}
 			},
@@ -74,7 +75,7 @@ const User = sequelize.define('User', {
 		type: Sequelize.BOOLEAN,
 		defaultValue: false,
 		allowNull: false,
-	}
+	},
 }, { hooks, tableName });
 
 // eslint-disable-next-line

@@ -1,4 +1,3 @@
-const bodyParser = require('body-parser');
 const express = require('express');
 const mapRoutes = require('express-routes-mapper');
 
@@ -11,8 +10,8 @@ const beforeAction = async () => {
 	const mappedOpenRoutes = mapRoutes(config.publicRoutes, 'api/controllers/');
 	const mappedAuthRoutes = mapRoutes(config.privateRoutes, 'api/controllers/');
 
-	testapp.use(bodyParser.urlencoded({ extended: false }));
-	testapp.use(bodyParser.json());
+	testapp.use(express.urlencoded({ extended: false }));
+	testapp.use(express.json());
 
 	testapp.all('/private/*', (req, res, next) => auth(req, res, next));
 	testapp.use('/public', mappedOpenRoutes);

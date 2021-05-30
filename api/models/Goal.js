@@ -20,10 +20,10 @@ const Goal = sequelize.define('Goal', {
 		type: Sequelize.STRING(2000),
 	},
 	amount: {
-		type: Sequelize.INTEGER, //set null if supporter-based
+		type: Sequelize.INTEGER, // set null if supporter-based
 	},
 	supporters: {
-		type: Sequelize.INTEGER, //set null if earning-based
+		type: Sequelize.INTEGER, // set null if earning-based
 	},
 	reached: {
 		type: Sequelize.BOOLEAN,
@@ -39,7 +39,7 @@ const Goal = sequelize.define('Goal', {
 		type: Sequelize.BOOLEAN,
 		allowNull: false,
 		defaultValue: false,
-	}
+	},
 });
 
 module.exports = Goal;
