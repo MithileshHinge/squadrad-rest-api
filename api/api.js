@@ -1,7 +1,6 @@
 /**
  * third party libraries
  */
-const bodyParser = require('body-parser');
 const express = require('express');
 const helmet = require('helmet');
 const http = require('http');
@@ -53,8 +52,8 @@ app.use(helmet({
 }));
 
 // parsing the request bodys
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 
 // passport-google-oauth20 strategy -- http://www.passportjs.org/docs/google/ (See OAuth 2.0)

@@ -38,7 +38,6 @@
   "dependencies": {
     "axios": "^0.21.1",
     "bcrypt-nodejs": "^0.0.3",
-    "body-parser": "^1.18.2",
     "core-js": "^2.6.9",
     "cors": "^2.8.4",
     "express": "^4.16.3",
