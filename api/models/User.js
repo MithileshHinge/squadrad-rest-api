@@ -66,6 +66,11 @@ const User = sequelize.define('User', {
 	registered_ip: {
 		type: Sequelize.STRING,
 	},
+	email_verified: {
+		type: Sequelize.BOOLEAN,
+		defaultValue: false,
+		allowNull: false,
+	},
 	deactivated: {
 		type: Sequelize.BOOLEAN,
 		defaultValue: false,

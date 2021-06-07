@@ -1,5 +1,7 @@
 const moment = require('moment');
 const axios = require('axios');
+const nodemailer = require('nodemailer');
+const myKeys = require('../../config/mykeys');
 const User = require('../models/User');
 const authService = require('../services/auth.service');
 const bcryptService = require('../services/bcrypt.service');
@@ -22,9 +24,37 @@ const UserController = () => {
 					registered_ip: req.ip,
 					last_login_timestamp: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
 				});
-				const token = authService().issue({ id: user.user_id });
+				const emailVerificationToken = authService().issue({ verify_id: user.user_id });
 
-				return res.status(200).json({ token, user });
+				const transporter = nodemailer.createTransport({
+					host: 'smtppro.zoho.in',
+					port: 465,
+					secure: true,
+					auth: {
+						user: myKeys.ZOHO_MAIL_USER,
+						pass: myKeys.ZOHO_MAIL_PASS,
+					},
+				});
+
+				const mailOptions = {
+					from: `"Team Squadrad" <${myKeys.ZOHO_MAIL_USER}>`,
+					to: body.email,
+					subject: 'Please verify your email address | Squadrad',
+					text: `Hi, please verify your email address and let's get you onboard. Follow this link to complete verification: http://localhost:8080/auth/verify-email/check?token=${emailVerificationToken}`,
+					html: `Hi, please verify your email address and let's get you onboard. Follow this link to complete verification: http://localhost:8080/auth/verify-email/check?token=${emailVerificationToken}`,
+				};
+
+				try {
+					const result = await transporter.sendMail(mailOptions);
+					console.log('Message %s sent: %s', result.messageId, result.response);
+					transporter.close();
+					return res.status(200).json({});
+				} catch (mailError) {
+					console.log(mailError);
+					transporter.close();
+					user.destroy();
+					return res.status(500).json({ msg: 'Internal server error: Couldn\'t send mail' });
+				}
 			} catch (err) {
 				console.log(err);
 				return res.status(500).json({ msg: 'Internal server error' });
@@ -32,6 +62,26 @@ const UserController = () => {
 		}
 
 		return res.status(400).json({ msg: 'Bad Request: Passwords don\'t match' });
+	};
+
+	const verifyEmail = async (req, res) => {
+		const emailVerificationToken = req.query.token;
+
+		authService().verify(emailVerificationToken, async (err, decodedToken) => {
+			if (err) {
+				return res.status(401).json({ isvalid: false, err: (err.name === 'TokenExpiredError') ? 'Token expired' : 'Invalid token' });
+			}
+
+			try {
+				const user = await User.findByPk(decodedToken.verify_id);
+				user.email_verified = true;
+				user.save();
+				return res.status(200).json({});
+			} catch (error) {
+				console.error(error);
+				return res.status(500).json({ msg: 'Internal server error' });
+			}
+		});
 	};
 
 	const login = async (req, res) => {
@@ -48,14 +98,14 @@ const UserController = () => {
 					});
 
 				if (!user) {
-					return res.status(400).json({ msg: 'Bad Request: User not found' });
+					return res.status(401).json({ msg: 'Unauthorized' });
 				}
 
 				if (bcryptService().comparePassword(password, user.password)) {
 					const token = authService().issue({ id: user.user_id });
 					user.last_login_timestamp = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
 					user.save();
-					return res.status(200).json({ token, user });
+					return res.status(200).cookie('accessToken', token, { httpOnly: true, secure: false, sameSite: true }).json({ user });
 				}
 
 				return res.status(401).json({ msg: 'Unauthorized' });
@@ -101,6 +151,7 @@ const UserController = () => {
 					profile_pic: profilePic,
 					google_token: accessToken,
 					google_refresh_token: refreshToken,
+					email_verified: true,
 				},
 			});
 			return done(null, user);
@@ -118,7 +169,9 @@ const UserController = () => {
 		// console.log(user);
 		if (req.isAuthenticated()) {
 			const token = authService().issue({ id: user.user_id });
-			return res.status(200).json({ token, user });
+			user.last_login_timestamp = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+			user.save();
+			return res.status(200).cookie('accessToken', token, { httpOnly: true, secure: false, sameSite: true }).json({ user });
 		}
 		return res.status(401).json({ msg: 'Unauthorized' });
 	};
@@ -278,6 +331,7 @@ const UserController = () => {
 					profile_pic: profile.items[0].snippet.thumbnails.medium.url,
 					youtube_token: accessToken,
 					youtube_refresh_token: refreshToken,
+					email_verified: true,
 				},
 			});
 			return done(null, user);
@@ -294,10 +348,14 @@ const UserController = () => {
 
 		if (req.isAuthenticated()) {
 			const token = authService().issue({ id: user.user_id });
-			return res.status(200).json({ token, user });
+			user.last_login_timestamp = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+			user.save();
+			return res.status(200).cookie('accessToken', token, { httpOnly: true, secure: false, sameSite: true }).json({ user });
 		}
 		return res.status(401).json({ msg: 'Unauthorized' });
 	};
+
+	const logout = (req, res) => res.status(200).clearCookie('accessToken', { httpOnly: true, secure: false, sameSite: true }).json();
 
 	const updateProfilePic = async (req, res) => {
 		try {
@@ -332,6 +390,7 @@ const UserController = () => {
 			}
 			return res.status(500).json({ msg: 'Internal server error' });
 		} catch (err) {
+			console.error(err);
 			return res.status(500).json({ msg: 'Internal server error' });
 		}
 	};
@@ -361,7 +420,7 @@ const UserController = () => {
 	};
 
 	const validate = (req, res) => {
-		const { token } = req.body;
+		const token = req.cookies.accessToken;
 
 		authService().verify(token, (err) => {
 			if (err) {
@@ -370,6 +429,21 @@ const UserController = () => {
 
 			return res.status(200).json({ isvalid: true });
 		});
+	};
+
+	const getUserSelf = async (req, res) => {
+		try {
+			const user = await User.findByPk(req.token.id);
+
+			if (!user) {
+				return res.status(400).json({ msg: 'Bad Request: User not found' });
+			}
+
+			return res.status(200).json({ user });
+		} catch (err) {
+			console.log(err);
+			return res.status(500).json({ msg: 'Internal server error' });
+		}
 	};
 
 	const getAll = async (req, res) => {
@@ -385,15 +459,18 @@ const UserController = () => {
 
 	return {
 		register,
+		verifyEmail,
 		login,
 		loginGoogle,
 		loginGoogleCallback,
 		loginYoutube,
 		loginYoutubeCallback,
+		logout,
 		updateProfilePic,
 		updateFields,
 		deleteUser,
 		validate,
+		getUserSelf,
 		getAll,
 	};
 };

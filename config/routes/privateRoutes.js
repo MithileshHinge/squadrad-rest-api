@@ -1,8 +1,10 @@
 const privateRoutes = {
 	// User API
 	'GET /users': 'UserController.getAll', // DELETE this later, only for testing
+	'GET /user': 'UserController.getUserSelf',
 	'PUT /user': 'UserController.updateFields',
 	'DELETE /user': 'UserController.deleteUser',
+	'GET /logout': 'UserController.logout',
 
 	// Creator API
 	'POST /creator': 'CreatorController.becomeCreator',

@@ -1,7 +1,14 @@
 const JWTService = require('../services/auth.service');
 
-// usually: "Authorization: Bearer [token]" or "token: [token]"
+// get token from httpOnly session cookie
 module.exports = (req, res, next) => {
+	const tokenToVerify = req.cookies.accessToken;
+
+	if (!tokenToVerify) {
+		return res.status(401).json({ msg: 'No Authorization was found' });
+	}
+
+	/*
 	let tokenToVerify;
 
 	if (req.header('Authorization')) {
@@ -25,6 +32,7 @@ module.exports = (req, res, next) => {
 	} else {
 		return res.status(401).json({ msg: 'No Authorization was found' });
 	}
+	*/
 
 	return JWTService().verify(tokenToVerify, (err, thisToken) => {
 		if (err) return res.status(401).json({ err });

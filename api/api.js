@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const http = require('http');
 const mapRoutes = require('express-routes-mapper');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const YoutubeStrategy = require('passport-youtube-v3').Strategy;
@@ -40,10 +41,14 @@ const mappedOpenRoutes = mapRoutes(config.publicRoutes, 'api/controllers/');
 const mappedAuthRoutes = mapRoutes(config.privateRoutes, 'api/controllers/');
 const DB = dbService(environment, config.migrate).start();
 const privateRoutePrefix = '/private';
+const publicRoutePrefix = '/public';
 
 // allow cross origin requests
 // configure to only allow requests from certain origins
 app.use(cors());
+
+// for parsing jwt from cookie
+app.use(cookieParser());
 
 // secure express app
 app.use(helmet({
@@ -111,8 +116,19 @@ app.all(`${privateRoutePrefix}/payments`, (req, res, next) => {
 });
 
 // fill routes for express application
-app.use('/public', mappedOpenRoutes);
+app.use(publicRoutePrefix, mappedOpenRoutes);
 app.use(privateRoutePrefix, mappedAuthRoutes);
+
+app.use((req, res) => {
+	res.status(404).send('Sorry, can\'t find that');
+});
+
+// default route - logging only
+
+app.all('*', (req, res) => {
+	console.log(req.originalUrl);
+	res.status(404).json({ msg: 'Error: Route not found' });
+});
 
 server.listen(config.port, () => {
 	if (environment !== 'production' &&
